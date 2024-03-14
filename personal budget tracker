@@ -1,0 +1,97 @@
+import json
+import os
+from datetime import datetime
+
+# File to store transactions
+TRANSACTIONS_FILE = "transactions.json"
+
+# Function to load transactions from file
+def load_transactions():
+    if os.path.exists(TRANSACTIONS_FILE):
+        with open(TRANSACTIONS_FILE, 'r') as file:
+            return json.load(file)
+    else:
+        return {"income": [], "expenses": []}
+
+# Function to save transactions to file
+def save_transactions(transactions):
+    with open(TRANSACTIONS_FILE, 'w') as file:
+        json.dump(transactions, file, indent=4)
+
+# Function to add income
+def add_income(transactions):
+    amount = float(input("Enter income amount: "))
+    category = input("Enter income category: ")
+    transactions["income"].append({"amount": amount, "category": category, "timestamp": str(datetime.now())})
+    save_transactions(transactions)
+    print("Income added successfully!")
+
+# Function to add expense
+def add_expense(transactions):
+    amount = float(input("Enter expense amount: "))
+    category = input("Enter expense category: ")
+    transactions["expenses"].append({"amount": amount, "category": category, "timestamp": str(datetime.now())})
+    save_transactions(transactions)
+    print("Expense added successfully!")
+
+# Function to calculate total income
+def calculate_total_income(transactions):
+    total_income = sum(transaction["amount"] for transaction in transactions["income"])
+    return total_income
+
+# Function to calculate total expenses
+def calculate_total_expenses(transactions):
+    total_expenses = sum(transaction["amount"] for transaction in transactions["expenses"])
+    return total_expenses
+
+# Function to calculate remaining budget
+def calculate_remaining_budget(transactions):
+    total_income = calculate_total_income(transactions)
+    total_expenses = calculate_total_expenses(transactions)
+    remaining_budget = total_income - total_expenses
+    return remaining_budget
+
+# Function to display expense analysis
+def display_expense_analysis(transactions):
+    expenses_by_category = {}
+    for expense in transactions["expenses"]:
+        category = expense["category"]
+        amount = expense["amount"]
+        if category in expenses_by_category:
+            expenses_by_category[category] += amount
+        else:
+            expenses_by_category[category] = amount
+    
+    print("\nExpense Analysis:")
+    for category, amount in expenses_by_category.items():
+        print(f"{category}: ${amount:.2f}")
+
+# Main function
+def main():
+    transactions = load_transactions()
+
+    while True:
+        print("\nBUDGET TRACKER")
+        print("1. Add Income")
+        print("2. Add Expense")
+        print("3. View Remaining Budget")
+        print("4. View Expense Analysis")
+        print("5. Exit")
+        choice = input("Enter your choice: ")
+
+        if choice == "1":
+            add_income(transactions)
+        elif choice == "2":
+            add_expense(transactions)
+        elif choice == "3":
+            remaining_budget = calculate_remaining_budget(transactions)
+            print(f"\nRemaining Budget: ${remaining_budget:.2f}")
+        elif choice == "4":
+            display_expense_analysis(transactions)
+        elif choice == "5":
+            break
+        else:
+            print("Invalid choice")
+
+if __name__ == "__main__":
+    main()
